@@ -483,6 +483,303 @@ curl -X POST http://localhost:3000/captain/register \
 - All passwords are stored hashed; the password is not returned in responses.
 - Attempting to register with an existing email will return a `400` error.
 
+---
+
+# POST /captain/login
+
+### Description
+This endpoint allows captains (drivers) to log in to their account. It validates the provided email and password against the captain's stored credentials. Upon successful authentication, it returns an authentication token and the captain's profile information.
+
+---
+
+## Request
+
+### Method
+`POST`
+
+### Endpoint
+`/captain/login`
+
+### Headers
+```
+Content-Type: application/json
+```
+
+### Request Body
+```json
+{
+  "email": "string (required, must be valid email)",
+  "password": "string (required, min: 6 characters)"
+}
+```
+
+### Required Fields
+- **email** - Captain's email address (must be a valid email format)
+- **password** - Captain's password (minimum 6 characters)
+
+---
+
+## Response
+
+### Success Response (200 OK)
+```json
+{
+  "token": "JWT_TOKEN_HERE",
+  "captain": {
+    "_id": "mongodb_id",
+    "fullname": {
+      "firstName": "Jane",
+      "lastName": "Doe"
+    },
+    "email": "jane@example.com",
+    "vehicle": {
+      "color": "red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+**Status Code:** `200 OK`
+
+### Error Response (401 Unauthorized)
+Returns an error message if email does not exist or password is incorrect.
+
+```json
+{
+  "message": "Invalid email or password"
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+### Error Response (400 Bad Request)
+Returns validation errors if required fields are missing or invalid.
+
+```json
+{
+  "errors": [
+    {
+      "msg": "Invalid Email",
+      "param": "email",
+      "location": "body"
+    },
+    {
+      "msg": "Password must be at least 6 charecter long",
+      "param": "password",
+      "location": "body"
+    }
+  ]
+}
+```
+
+**Status Code:** `400 Bad Request`
+
+---
+
+## Status Codes
+
+| Code | Description |
+|------|-------------|
+| `200` | Captain successfully logged in |
+| `400` | Validation failed - invalid or missing required fields |
+| `401` | Invalid email or password |
+| `500` | Server error |
+
+---
+
+## Example Request
+
+```bash
+curl -X POST http://localhost:3000/captain/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "jane@example.com",
+    "password": "password123"
+  }'
+```
+
+---
+
+## Notes
+- The password comparison uses bcrypt for security
+- The returned token can be used for authentication in subsequent requests
+- Both email and password must be correct; generic error messages are used to prevent email enumeration
+- The password field will not be returned in the response for security reasons
+
+---
+
+# GET /captain/profile
+
+### Description
+This endpoint returns the authenticated captain's profile. It requires a valid JWT token either in the `Authorization` header (`Bearer <token>`) or in the `token` cookie. The auth middleware verifies the token and ensures it is not blacklisted.
+
+---
+
+## Request
+
+### Method
+`GET`
+
+### Endpoint
+`/captain/profile`
+
+### Headers
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+
+### Request Body
+No body required.
+
+### Required Authentication
+- Valid JWT token in `Authorization` header or `token` cookie
+
+---
+
+## Response
+
+### Success Response (200 OK)
+```json
+{
+  "captain": {
+    "_id": "mongodb_id",
+    "fullname": {
+      "firstName": "Jane",
+      "lastName": "Doe"
+    },
+    "email": "jane@example.com",
+    "vehicle": {
+      "color": "red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+**Status Code:** `200 OK`
+
+### Error Response (401 Unauthorized)
+Returned when no token is provided, token is invalid, or token is blacklisted.
+
+```json
+{
+  "message": "Access denied. No token provided."
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+---
+
+## Status Codes
+
+| Code | Description |
+|------|-------------|
+| `200` | Profile returned successfully |
+| `401` | Not authenticated or token invalid/blacklisted |
+| `500` | Server error |
+
+---
+
+## Example Request
+
+```bash
+curl -X GET http://localhost:3000/captain/profile \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+---
+
+## Notes
+- Supports token in `Authorization` header or `token` cookie
+- Tokens added to the blacklist (on logout) are rejected
+
+---
+
+# GET /captain/logout
+
+### Description
+Logs out the authenticated captain by clearing the `token` cookie and storing the token in a blacklist so it can no longer be used.
+
+---
+
+## Request
+
+### Method
+`GET`
+
+### Endpoint
+`/captain/logout`
+
+### Headers
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+
+### Request Body
+No body required.
+
+### Required Authentication
+- Valid JWT token in `Authorization` header or `token` cookie
+
+---
+
+## Response
+
+### Success Response (200 OK)
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+**Status Code:** `200 OK`
+
+### Error Response (401 Unauthorized)
+Returned when the captain is not authenticated or token is invalid.
+
+```json
+{
+  "message": "Access denied. No token provided."
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+---
+
+## Status Codes
+
+| Code | Description |
+|------|-------------|
+| `200` | Logged out successfully |
+| `401` | Not authenticated or token invalid/blacklisted |
+| `500` | Server error |
+
+---
+
+## Example Request
+
+```bash
+curl -X GET http://localhost:3000/captain/logout \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+---
+
+## Notes
+- Logout clears the `token` cookie and writes the token to the blacklist
+- Subsequent requests with the same token will be rejected
+
 
 ````
 
