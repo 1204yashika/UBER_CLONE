@@ -359,5 +359,131 @@ Returns validation errors if required fields are missing or invalid.
 - The returned token can be used for authentication in subsequent requests
 - Both email and password must be correct; generic error messages are used to prevent email enumeration
 - The password field will not be returned in the response for security reasons
+ 
+---
+
+# POST /captain/register
+
+### Description
+Registers a new captain (driver). The endpoint validates captain details including vehicle information, creates the captain record, and returns an authentication token and the created captain object on success.
+
+---
+
+## Request
+
+### Method
+`POST`
+
+### Endpoint
+`/captain/register`
+
+### Headers
+```
+Content-Type: application/json
+```
+
+### Request Body
+```json
+{
+  "fullname": {
+    "firstName": "string (required, min: 3 characters)",
+    "lastName": "string (optional, min: 3 characters if provided)"
+  },
+  "email": "string (required, must be valid email)",
+  "password": "string (required, min: 6 characters)",
+  "vehicle": {
+    "color": "string (required, min: 3 characters)",
+    "plate": "string (required, min: 3 characters)",
+    "capacity": "integer (required, min: 1)",
+    "vehicleType": "string (required, one of: car, motorcycle, auto)"
+  }
+}
+```
+
+### Required Fields
+- **fullname.firstName** - Captain's first name (minimum 3 characters)
+- **email** - Captain's email (must be valid and unique)
+- **password** - Password (minimum 6 characters)
+- **vehicle.color** - Vehicle color (minimum 3 characters)
+- **vehicle.plate** - Vehicle plate (minimum 3 characters)
+- **vehicle.capacity** - Vehicle capacity (integer, minimum 1)
+- **vehicle.vehicleType** - One of `car`, `motorcycle`, or `auto`
+
+---
+
+## Response
+
+### Success Response (201 Created)
+```json
+{
+  "token": "JWT_TOKEN_HERE",
+  "captain": {
+    "_id": "mongodb_id",
+    "fullname": {
+      "firstName": "Jane",
+      "lastName": "Doe"
+    },
+    "email": "jane@example.com",
+    "vehicle": {
+      "color": "red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+**Status Code:** `201 Created`
+
+### Error Response (400 Bad Request)
+Returns validation errors when required fields are missing or invalid.
+
+```json
+{
+  "errors": [
+    { "msg": "Invalid Email", "param": "email", "location": "body" },
+    { "msg": "First name must be at least 3 charecter long", "param": "fullname.firstName", "location": "body" },
+    { "msg": "Vehicle capacity must be at least 1", "param": "vehicle.capacity", "location": "body" }
+  ]
+}
+```
+
+**Status Code:** `400 Bad Request`
+
+---
+
+## Status Codes
+
+| Code | Description |
+|------|-------------|
+| `201` | Captain successfully registered |
+| `400` | Validation failed - invalid or missing required fields |
+| `500` | Server error |
+
+---
+
+## Example Request
+
+```bash
+curl -X POST http://localhost:3000/captain/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullname": { "firstName": "Jane", "lastName": "Doe" },
+    "email": "jane@example.com",
+    "password": "password123",
+    "vehicle": { "color": "red", "plate": "ABC123", "capacity": 4, "vehicleType": "car" }
+  }'
+```
+
+---
+
+## Notes
+- Vehicle `vehicleType` must be one of `car`, `motorcycle`, or `auto`.
+- All passwords are stored hashed; the password is not returned in responses.
+- Attempting to register with an existing email will return a `400` error.
+
+
+````
 
 
