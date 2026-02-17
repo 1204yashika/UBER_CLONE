@@ -1,4 +1,5 @@
 const captainModel = require("../models/captain.model");
+const userModel = require("../models/user.model");
 const blacklistModel = require("../models/blaklistToken.model");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -6,6 +7,7 @@ const bcrypt = require('bcrypt');
 
 module.exports.authUser = async (req, res, next)=>{
 	const token = req.cookies.token || req.header('Authorization')?.replace('Bearer ', '');
+	console.log("Captain Authorization header:", req.header('Authorization'));	
 
 	if(!token){
 		return res.status(401).json({message: "Access denied. No token provided."})
@@ -28,6 +30,7 @@ module.exports.authUser = async (req, res, next)=>{
 		req.user = user;
 		return next();
 	} catch (error) {
+		console.error("Token verification error:", error);
 		res.status(400).json({message: "Unauthorized. Invalid token."})
 	}
 }
