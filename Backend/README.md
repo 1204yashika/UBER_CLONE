@@ -99,6 +99,171 @@ Returns validation errors if required fields are missing or invalid.
 
 ---
 
+---
+
+# GET /users/profile
+
+### Description
+This endpoint returns the authenticated user's profile. It requires a valid JWT token either in the `Authorization` header (`Bearer <token>`) or in the `token` cookie. The auth middleware verifies the token and ensures it is not blacklisted.
+
+---
+
+## Request
+
+### Method
+`GET`
+
+### Endpoint
+`/users/profile`
+
+### Headers
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+
+### Request Body
+No body required.
+
+### Required Authentication
+- Valid JWT token in `Authorization` header or `token` cookie
+
+---
+
+## Response
+
+### Success Response (200 OK)
+```json
+{
+  "user": {
+    "_id": "mongodb_id",
+    "fullname": {
+      "firstName": "John",
+      "lastName": "Doe"
+    },
+    "email": "john@example.com",
+    "socketId": null
+  }
+}
+```
+
+**Status Code:** `200 OK`
+
+### Error Response (401 Unauthorized)
+Returned when no token is provided, token is invalid, or token is blacklisted.
+
+```json
+{
+  "message": "Access denied. No token provided."
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+---
+
+## Status Codes
+
+| Code | Description |
+|------|-------------|
+| `200` | Profile returned successfully |
+| `401` | Not authenticated or token invalid/blacklisted |
+| `500` | Server error |
+
+---
+
+## Example Request
+
+```bash
+curl -X GET http://localhost:3000/users/profile \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+---
+
+## Notes
+- Supports token in `Authorization` header or `token` cookie
+- Tokens added to the blacklist (on logout) are rejected
+
+---
+
+# GET /users/logout
+
+### Description
+Logs out the authenticated user by clearing the `token` cookie and storing the token in a blacklist so it can no longer be used.
+
+---
+
+## Request
+
+### Method
+`GET`
+
+### Endpoint
+`/users/logout`
+
+### Headers
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+
+### Request Body
+No body required.
+
+### Required Authentication
+- Valid JWT token in `Authorization` header or `token` cookie
+
+---
+
+## Response
+
+### Success Response (200 OK)
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+**Status Code:** `200 OK`
+
+### Error Response (401 Unauthorized)
+Returned when the user is not authenticated or token is invalid.
+
+```json
+{
+  "message": "Access denied. No token provided."
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+---
+
+## Status Codes
+
+| Code | Description |
+|------|-------------|
+| `200` | Logged out successfully |
+| `401` | Not authenticated or token invalid/blacklisted |
+| `500` | Server error |
+
+---
+
+## Example Request
+
+```bash
+curl -X GET http://localhost:3000/users/logout \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+---
+
+## Notes
+- Logout clears the `token` cookie and writes the token to the blacklist
+- Subsequent requests with the same token will be rejected
 # POST /user/login
 
 ### Description
