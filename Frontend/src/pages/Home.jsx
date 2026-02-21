@@ -1,8 +1,11 @@
-import React, { useRef, useState } from 'react'
+import React, { use, useRef, useState } from 'react'
 import {useGSAP} from '@gsap/react'
 import gsap from 'gsap';
 import 'remixicon/fonts/remixicon.css'
 import LocationSearchPanal from '../components/LocationSearchPanal';
+import VehiclePanel from '../components/VehiclePanel';
+import ConfirmedRide from '../components/ConfirmedRide';
+import LookingForDriver from '../components/LookingForDriver';
 
 
 const Home = () => {
@@ -12,6 +15,13 @@ const Home = () => {
   const [panalOpen, setPanalOpen] = useState(false);
   const panalRef = useRef(null);
   const panalCloseRef = useRef(null);
+  const vehiclePanelRef = useRef(null);
+  const confirmedRideRef = useRef(null);
+  const vehicleFoundRef = useRef(null);
+  const [vehiclePanelOpen, setVehiclePanalOpen] = useState(false);
+  const [confirmedRideOpen, setConfirmedRideOpen] = useState(false);
+  const [vehicleFound, setVehicleFound] = useState(false);
+  
 
 
   const submitHandler = (e)=>{
@@ -29,6 +39,24 @@ const Home = () => {
 		opacity: panalOpen ? 1 : 0
 	})
   }, [panalOpen])
+
+  useGSAP(()=>{
+	gsap.to(vehiclePanelRef.current, {
+		transform: vehiclePanelOpen ? "translateY(0%)" : "translateY(100%)",
+	})
+  }, [vehiclePanelOpen])
+
+  useGSAP(()=>{
+	gsap.to(confirmedRideRef.current, {
+		transform: confirmedRideOpen ? "translateY(0%)" : "translateY(100%)",
+	})
+  }, [confirmedRideOpen])
+
+   useGSAP(()=>{
+	gsap.to(vehicleFoundRef.current, {
+		transform: vehicleFound ? "translateY(0%)" : "translateY(100%)",
+	})
+  }, [vehicleFound])
   return (
 	<div className='h-screen relative overflow-hidden'>
 	  <img className="w-25 absolute left-5 top-5" src="https://download.logo.wine/logo/Uber/Uber-Logo.wine.png" alt="Uber Logo"  />
@@ -65,39 +93,31 @@ const Home = () => {
 			</form>
 		</div>
 		<div ref={panalRef} className='h-0 bg-white'>
-			<LocationSearchPanal/>
+			<LocationSearchPanal
+				vehiclePanelOpen={vehiclePanelOpen}
+				setVehiclePanalOpen={setVehiclePanalOpen}
+				panalOpen={panalOpen}
+				setPanalOpen={setPanalOpen}
+			/>
 		</div>
 		
 	  </div>
-	  <div className='fixed z-10 bottom-0 w-full p-3 py-8 bg-white translate-y-full '>
-		<h3 className='text-2xl font-semibold mb-5'>Choose a Vehicle</h3>
-		<div className='flex items-center justify-between w-full px-3 bg-gray-100 active:border-black rounded-xl mb-3'>
-			<img className="h-30" src="https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/v1.1/UberX_v1.png" alt="Uber Top Bar" />
-			<div className='ml-2 w-1/2'>
-				<h4 className='font-medium text-base'>UberGo <span><i className="ri-user-3-fill"></i>4</span></h4>
-				<h5 className='font-medium text-sm'>2 mins away</h5>
-				<p className='font-medium text-xs text-gray-600'>Affordable, compact rides</p>
-			</div>
-			<h2 className='text-lg font-semibold'>193.20</h2>
-		</div>
-		<div className='flex items-center justify-between w-full px-3 bg-gray-100 active:border-black rounded-xl mb-3'>
-			<img className="h-30" src="https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/v1.1/Uber_Moto_India1.png" alt="Uber Top Bar" />
-			<div className='ml-2 w-1/2'>
-				<h4 className='font-medium text-base'>Moto <span><i className="ri-user-3-fill"></i>1</span></h4>
-				<h5 className='font-medium text-sm'>3 mins away</h5>
-				<p className='font-medium text-xs text-gray-600'>Affordable, motorcycle rides</p>
-			</div>
-			<h2 className='text-lg font-semibold'>65.90</h2>
-		</div>
-		<div className='flex items-center justify-between w-full px-3 bg-gray-100 active:border-black rounded-xl mb-3'>
-			<img className="h-30" src="https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/v1.1/TukTuk_Green_v1.png" alt="Uber Top Bar" />
-			<div className='ml-2 w-1/2'>
-				<h4 className='font-medium text-base'>Uber Auto <span><i className="ri-user-3-fill"></i>3</span></h4>
-				<h5 className='font-medium text-sm'>2 mins away</h5>
-				<p className='font-medium text-xs text-gray-600'>Affordable, auto rides</p>
-			</div>
-			<h2 className='text-lg font-semibold'>118.68</h2>
-		</div>
+	  <div ref={vehiclePanelRef} className='fixed z-10 bottom-0 w-full p-3 py-8 pt-14 bg-white translate-y-full vehicle-panel'>
+		<VehiclePanel 
+			setVehiclePanalOpen={setVehiclePanalOpen}
+			vehiclePanelOpen={vehiclePanelOpen}
+			setConfirmedRideOpen={setConfirmedRideOpen}
+		/>
+	  </div>
+	  <div ref={confirmedRideRef} className='fixed z-10 bottom-0 w-full p-3 py-6 pt-14 bg-white translate-y-full vehicle-panel'>
+		<ConfirmedRide
+			setConfirmedRideOpen={setConfirmedRideOpen}
+			confirmedRideOpen={confirmedRideOpen}
+			setVehicleFound={setVehicleFound}
+		/>
+	  </div>
+	  <div ref={vehicleFoundRef} className='fixed z-10 bottom-0 w-full p-3 py-6 pt-14 bg-white translate-y-full vehicle-panel'>
+		<LookingForDriver/>
 	  </div>
 	  
 	</div>
