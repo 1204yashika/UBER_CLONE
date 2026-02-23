@@ -6,7 +6,7 @@ const LookingForDriver = () => {
 		<h5 
 		className='p-3 w-[93%] text-center absolute top-0 '
 		onClick={()=>{
-			setConfirmedRideOpen(false);
+			setVehicleFound(false);
 		}}
 		>
 			<i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i>

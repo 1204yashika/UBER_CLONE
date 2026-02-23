@@ -6,6 +6,7 @@ import LocationSearchPanal from '../components/LocationSearchPanal';
 import VehiclePanel from '../components/VehiclePanel';
 import ConfirmedRide from '../components/ConfirmedRide';
 import LookingForDriver from '../components/LookingForDriver';
+import WaitingForDriver from '../components/WaitingForDriver';
 
 
 const Home = () => {
@@ -18,9 +19,11 @@ const Home = () => {
   const vehiclePanelRef = useRef(null);
   const confirmedRideRef = useRef(null);
   const vehicleFoundRef = useRef(null);
+  const waitingForDriverRef = useRef(null);
   const [vehiclePanelOpen, setVehiclePanalOpen] = useState(false);
   const [confirmedRideOpen, setConfirmedRideOpen] = useState(false);
   const [vehicleFound, setVehicleFound] = useState(false);
+  const [waitingForDriver, setWaitingForDriver] = useState(false);
   
 
 
@@ -57,6 +60,13 @@ const Home = () => {
 		transform: vehicleFound ? "translateY(0%)" : "translateY(100%)",
 	})
   }, [vehicleFound])
+
+  useGSAP(()=>{
+	gsap.to(waitingForDriverRef.current, {
+		transform: waitingForDriver ? "translateY(0%)" : "translateY(100%)",
+	})
+  }, [waitingForDriver])
+  
   return (
 	<div className='h-screen relative overflow-hidden'>
 	  <img className="w-25 absolute left-5 top-5" src="https://download.logo.wine/logo/Uber/Uber-Logo.wine.png" alt="Uber Logo"  />
@@ -117,7 +127,14 @@ const Home = () => {
 		/>
 	  </div>
 	  <div ref={vehicleFoundRef} className='fixed z-10 bottom-0 w-full p-3 py-6 pt-14 bg-white translate-y-full vehicle-panel'>
-		<LookingForDriver/>
+		<LookingForDriver
+			setVehicleFound={setVehicleFound}
+		/>
+	  </div>
+	  <div ref={waitingForDriverRef} className='fixed z-10 bottom-0 w-full p-3 py-6 pt-14 bg-white translate-y-full vehicle-panel'>
+		<WaitingForDriver
+			setWaitingForDriver={setWaitingForDriver}
+		/>
 	  </div>
 	  
 	</div>
